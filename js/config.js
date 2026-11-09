@@ -110,9 +110,12 @@ class ConfigManager {
 
   loadConfig() {
     return {
-      businessName: localStorage.getItem(STORAGE_KEYS.BUSINESS_NAME) || PRESET_TEMPLATES.avior.name,
-      avatarUrl: localStorage.getItem(STORAGE_KEYS.AVATAR_URL) || PRESET_TEMPLATES.avior.avatar,
-      context: localStorage.getItem(STORAGE_KEYS.CONTEXT) || PRESET_TEMPLATES.avior.context,
+      // Los datos del negocio son temporales por sesión (sessionStorage).
+      // Cada vez que un usuario nuevo entra o abre el enlace, SIEMPRE verá la demo oficial de Avior AI.
+      businessName: sessionStorage.getItem(STORAGE_KEYS.BUSINESS_NAME) || PRESET_TEMPLATES.avior.name,
+      avatarUrl: sessionStorage.getItem(STORAGE_KEYS.AVATAR_URL) || PRESET_TEMPLATES.avior.avatar,
+      context: sessionStorage.getItem(STORAGE_KEYS.CONTEXT) || PRESET_TEMPLATES.avior.context,
+      // La API key se guarda de forma segura únicamente en el localStorage privado de tu dispositivo
       apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || '',
       model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'gpt-4o-mini',
       soundEnabled: localStorage.getItem(STORAGE_KEYS.SOUND_ENABLED) !== 'false'
@@ -121,12 +124,25 @@ class ConfigManager {
 
   saveConfig(newConfig) {
     this.state = { ...this.state, ...newConfig };
-    if (newConfig.businessName !== undefined) localStorage.setItem(STORAGE_KEYS.BUSINESS_NAME, newConfig.businessName);
-    if (newConfig.avatarUrl !== undefined) localStorage.setItem(STORAGE_KEYS.AVATAR_URL, newConfig.avatarUrl);
-    if (newConfig.context !== undefined) localStorage.setItem(STORAGE_KEYS.CONTEXT, newConfig.context);
+    // Guardar datos del negocio solo en sessionStorage (se borran al cerrar la pestaña)
+    if (newConfig.businessName !== undefined) sessionStorage.setItem(STORAGE_KEYS.BUSINESS_NAME, newConfig.businessName);
+    if (newConfig.avatarUrl !== undefined) sessionStorage.setItem(STORAGE_KEYS.AVATAR_URL, newConfig.avatarUrl);
+    if (newConfig.context !== undefined) sessionStorage.setItem(STORAGE_KEYS.CONTEXT, newConfig.context);
+    
+    // Credencial de API opcional en localStorage de este navegador
     if (newConfig.apiKey !== undefined) localStorage.setItem(STORAGE_KEYS.API_KEY, newConfig.apiKey);
     if (newConfig.model !== undefined) localStorage.setItem(STORAGE_KEYS.MODEL, newConfig.model);
     if (newConfig.soundEnabled !== undefined) localStorage.setItem(STORAGE_KEYS.SOUND_ENABLED, String(newConfig.soundEnabled));
+    return this.state;
+  }
+
+  resetToDefault() {
+    sessionStorage.removeItem(STORAGE_KEYS.BUSINESS_NAME);
+    sessionStorage.removeItem(STORAGE_KEYS.AVATAR_URL);
+    sessionStorage.removeItem(STORAGE_KEYS.CONTEXT);
+    this.state.businessName = PRESET_TEMPLATES.avior.name;
+    this.state.avatarUrl = PRESET_TEMPLATES.avior.avatar;
+    this.state.context = PRESET_TEMPLATES.avior.context;
     return this.state;
   }
 

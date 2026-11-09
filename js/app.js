@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggleKeyVisibilityBtn = document.getElementById('toggleKeyVisibility');
   const presetSelector = document.getElementById('cfgPresetSelector');
   const resetChatBtn = document.getElementById('resetChatBtn');
+  const resetDefaultDemoBtn = document.getElementById('resetDefaultDemoBtn');
 
   // Estado local de la conversación en memoria
   let conversationHistory = [];
@@ -207,6 +208,18 @@ document.addEventListener('DOMContentLoaded', () => {
       closeConfig();
     }
   });
+
+  // Botón para restablecer toda la demo a la plantilla original de Avior AI
+  if (resetDefaultDemoBtn) {
+    resetDefaultDemoBtn.addEventListener('click', () => {
+      if (confirm('¿Restablecer el simulador a los datos y avatar oficial de Avior AI?')) {
+        configManager.resetToDefault();
+        syncUIWithConfig();
+        startConversation();
+        closeConfig();
+      }
+    });
+  }
 
   // --- Eventos de Chat & Enviar ---
   messageInput.addEventListener('input', updateInputState);
