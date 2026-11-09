@@ -1,5 +1,6 @@
 /**
- * Integración con la API de OpenAI y fallback inteligente para demostraciones.
+ * Integración con las APIs de Google Gemini y OpenAI
+ * Soporta auto-detección de proveedor y fallback inteligente para demostraciones.
  */
 
 class OpenAIService {
@@ -8,7 +9,7 @@ class OpenAIService {
   }
 
   /**
-   * Envía la conversación a OpenAI Chat Completions
+   * Envía la conversación a Gemini u OpenAI según la clave y modelo
    * @param {Array<{role: string, content: string}>} history - Historial de conversación
    * @returns {Promise<string>}
    */
@@ -16,12 +17,87 @@ class OpenAIService {
     const config = this.configManager.state;
     const apiKey = config.apiKey ? config.apiKey.trim() : '';
 
-    // Si no hay API key, generamos una respuesta de simulación inteligente para no romper la demo comercial
+    // Si no hay API key, generamos una respuesta de simulación inteligente para la demo
     if (!apiKey) {
       return this.generateMockResponse(history, config);
     }
 
+    const isGemini = apiKey.startsWith('AIza') || (config.model && config.model.includes('gemini'));
+
+    if (isGemini) {
+      return this.sendToGemini(history, apiKey, config);
+    } else {
+      return this.sendToOpenAI(history, apiKey, config);
+    }
+  }
+
+  /**
+   * Llamada a la API nativa de Google Gemini (Google AI Studio)
+   */
+  async sendToGemini(history, apiKey, config) {
     const systemPrompt = this.configManager.getSystemPrompt();
+    const model = (config.model && config.model.includes('gemini')) ? config.model : 'gemini-1.5-flash';
+
+    // Mapear historial al formato de Gemini
+    const contents = history.map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
+    }));
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemPrompt }]
+          },
+          contents: contents,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 300
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMsg = errorData.error?.message || `Error HTTP ${response.status}: ${response.statusText}`;
+
+        if (response.status === 400 || response.status === 403) {
+          throw new Error('API Key de Google Gemini inválida o sin permisos. Revísala en Google AI Studio (aistudio.google.com).');
+        } else if (response.status === 429) {
+          throw new Error('Límite de solicitudes alcanzado en Gemini. Espera unos segundos y vuelve a intentar.');
+        } else {
+          throw new Error(`Gemini: ${errorMsg}`);
+        }
+      }
+
+      const data = await response.json();
+      const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+      if (!botReply) {
+        throw new Error('La respuesta de Gemini llegó vacía.');
+      }
+
+      return botReply;
+    } catch (error) {
+      console.error('Error en llamada a Google Gemini:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Llamada a OpenAI Chat Completions
+   */
+  async sendToOpenAI(history, apiKey, config) {
+    const systemPrompt = this.configManager.getSystemPrompt();
+    const model = (config.model && config.model.includes('gpt')) ? config.model : 'gpt-4o-mini';
+
     const messages = [
       { role: 'system', content: systemPrompt },
       ...history
@@ -35,7 +111,7 @@ class OpenAIService {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: config.model || 'gpt-4o-mini',
+          model: model,
           messages: messages,
           temperature: 0.7,
           max_tokens: 300
@@ -59,7 +135,7 @@ class OpenAIService {
       const botReply = data.choices?.[0]?.message?.content?.trim();
 
       if (!botReply) {
-        throw new Error('La respuesta de la IA llegó vacía.');
+        throw new Error('La respuesta de OpenAI llegó vacía.');
       }
 
       return botReply;
@@ -71,11 +147,10 @@ class OpenAIService {
 
   /**
    * Fallback de respuesta simulada si no se ha configurado API key aún.
-   * Permite que la demo comercial funcione inmediatamente en cualquier computadora sin fricciones.
    */
   async generateMockResponse(history, config) {
-    // Simular latencia de red y razonamiento humano (1.2 segundos)
-    await new Promise(res => setTimeout(res, 1200));
+    // Simular latencia de red y razonamiento humano (1.1 segundos)
+    await new Promise(res => setTimeout(res, 1100));
 
     const lastUserMessage = history[history.length - 1]?.content?.toLowerCase() || '';
 
@@ -91,7 +166,7 @@ class OpenAIService {
       return `¡Con todo gusto! Atendemos de forma continua y personalizada en *${config.businessName}*. 📍🕒\n\n¿Te gustaría programar una cita o visita guiada?`;
     }
 
-    return `¡Excelente consulta! En *${config.businessName}* nos encargamos de brindarte la mejor solución a medida. ✨\n\n*(Nota Demo: Ingresa tu OpenAI API Key en "Configurar Demo" para respuestas con GPT-4o-mini en vivo).* ¿Deseas que coordinemos con un asesor comercial?`;
+    return `¡Excelente consulta! En *${config.businessName}* nos encargamos de brindarte la mejor solución a medida. ✨\n\n*(Nota Demo: Pega tu API Key de Gemini u OpenAI en "Ajustes" para respuestas con IA en vivo).* ¿Deseas coordinar con un asesor?`;
   }
 }
 

@@ -220,12 +220,12 @@
             />
           </div>
 
-          <!-- Credenciales API OpenAI -->
+          <!-- Credenciales API Gemini / OpenAI -->
           <div class="bg-gray-50 border border-gray-300 rounded-lg p-3.5 space-y-3">
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="text-xs font-bold text-gray-700 uppercase tracking-wide">
-                  OpenAI API Key
+                  API Key (Google Gemini u OpenAI)
                 </label>
                 <button type="button" id="toggleKeyVisibility" class="text-[11px] text-emerald-600 hover:underline">
                   Mostrar
@@ -234,10 +234,12 @@
               <input
                 id="cfgApiKey"
                 type="password"
-                placeholder="sk-proj-..."
+                placeholder="Pega tu clave (AIzaSy... de Gemini o sk-... de OpenAI)"
                 class="w-full text-xs font-mono bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
-              <p class="text-[11px] text-gray-500 mt-1">Se guarda de forma local en tu navegador (localStorage). Si no tienes clave, el simulador responderá en modo demostración offline.</p>
+              <p class="text-[11px] text-gray-500 mt-1">
+                ¿No tienes clave? El simulador responderá en modo demo offline. Puedes obtener una clave gratuita de Gemini en <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-emerald-600 underline font-medium">Google AI Studio</a>.
+              </p>
             </div>
 
             <!-- Modelo -->
@@ -246,9 +248,10 @@
                 Modelo de IA
               </label>
               <select id="cfgModel" class="w-full text-xs bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <option value="gpt-4o-mini">gpt-4o-mini (Ultra rápido & Económico - Recomendado)</option>
-                <option value="gpt-4o">gpt-4o (Máxima capacidad de razonamiento)</option>
-                <option value="gpt-3.5-turbo">gpt-3.5-turbo (Clásico)</option>
+                <option value="gemini-1.5-flash">🌟 Google Gemini 1.5 Flash (Gratis en AI Studio - Recomendado)</option>
+                <option value="gemini-2.0-flash">⚡ Google Gemini 2.0 Flash</option>
+                <option value="gpt-4o-mini">🤖 OpenAI gpt-4o-mini</option>
+                <option value="gpt-4o">🧠 OpenAI gpt-4o</option>
               </select>
             </div>
           </div>
