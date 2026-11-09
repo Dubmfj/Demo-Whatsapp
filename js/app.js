@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const avatarPreview = document.getElementById('cfgAvatarPreview');
   const inputContext = document.getElementById('cfgContext');
   const inputApiKey = document.getElementById('cfgApiKey');
-  const inputModel = document.getElementById('cfgModel');
   const toggleKeyVisibilityBtn = document.getElementById('toggleKeyVisibility');
   const presetSelector = document.getElementById('cfgPresetSelector');
   const resetChatBtn = document.getElementById('resetChatBtn');
@@ -60,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
     avatarPreview.src = cfg.avatarUrl;
     inputContext.value = cfg.context;
     inputApiKey.value = cfg.apiKey;
-    inputModel.value = cfg.model;
   }
 
   /**
@@ -190,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
       avatarUrl: avatarPreview.src,
       context: inputContext.value.trim(),
       apiKey: inputApiKey.value.trim(),
-      model: inputModel.value
+      model: 'gemini-3.8-flash'
     };
 
     configManager.saveConfig(updatedConfig);

@@ -220,12 +220,12 @@
             />
           </div>
 
-          <!-- Credenciales API Gemini / OpenAI -->
+          <!-- Credenciales API Gemini -->
           <div class="bg-gray-50 border border-gray-300 rounded-lg p-3.5 space-y-3">
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="text-xs font-bold text-gray-700 uppercase tracking-wide">
-                  API Key (Google Gemini u OpenAI)
+                  API Key de Gemini
                 </label>
                 <button type="button" id="toggleKeyVisibility" class="text-[11px] text-emerald-600 hover:underline">
                   Mostrar
@@ -234,25 +234,20 @@
               <input
                 id="cfgApiKey"
                 type="password"
-                placeholder="Pega tu clave (AIzaSy... de Gemini o sk-... de OpenAI)"
+                placeholder="Pega aquí tu token (AIzaSy...)"
                 class="w-full text-xs font-mono bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
               <p class="text-[11px] text-gray-500 mt-1">
-                ¿No tienes clave? El simulador responderá en modo demo offline. Puedes obtener una clave gratuita de Gemini en <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-emerald-600 underline font-medium">Google AI Studio</a>.
+                Tu clave se guarda segura en tu propio navegador. Si no tienes clave, el simulador responderá en modo demo offline.
               </p>
             </div>
 
-            <!-- Modelo -->
-            <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">
-                Modelo de IA
-              </label>
-              <select id="cfgModel" class="w-full text-xs bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                <option value="gemini-1.5-flash">🌟 Google Gemini 1.5 Flash (Gratis en AI Studio - Recomendado)</option>
-                <option value="gemini-2.0-flash">⚡ Google Gemini 2.0 Flash</option>
-                <option value="gpt-4o-mini">🤖 OpenAI gpt-4o-mini</option>
-                <option value="gpt-4o">🧠 OpenAI gpt-4o</option>
-              </select>
+            <!-- Modelo Fijo -->
+            <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2 text-xs">
+              <span class="font-medium text-emerald-900">Modelo de IA:</span>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#075E54] text-white font-semibold text-[11.5px] shadow-sm">
+                ⚡ Gemini 3.8 Flash
+              </span>
             </div>
           </div>
 

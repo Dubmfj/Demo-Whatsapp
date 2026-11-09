@@ -117,7 +117,7 @@ class ConfigManager {
       context: sessionStorage.getItem(STORAGE_KEYS.CONTEXT) || PRESET_TEMPLATES.avior.context,
       // La API key se guarda de forma segura únicamente en el localStorage privado de tu dispositivo
       apiKey: localStorage.getItem(STORAGE_KEYS.API_KEY) || '',
-      model: localStorage.getItem(STORAGE_KEYS.MODEL) || 'gemini-1.5-flash',
+      model: 'gemini-3.8-flash',
       soundEnabled: localStorage.getItem(STORAGE_KEYS.SOUND_ENABLED) !== 'false'
     };
   }

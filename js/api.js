@@ -32,11 +32,13 @@ class OpenAIService {
   }
 
   /**
-   * Llamada a la API nativa de Google Gemini (Google AI Studio)
+   * Llamada a la API nativa de Google Gemini (Gemini 3.8 Flash)
    */
   async sendToGemini(history, apiKey, config) {
     const systemPrompt = this.configManager.getSystemPrompt();
-    const model = (config.model && config.model.includes('gemini')) ? config.model : 'gemini-1.5-flash';
+    const primaryModel = 'gemini-3.8-flash';
+    const fallbackModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+    const modelsToTry = [primaryModel, ...fallbackModels];
 
     // Mapear historial al formato de Gemini
     const contents = history.map(msg => ({
@@ -44,29 +46,42 @@ class OpenAIService {
       parts: [{ text: msg.content }]
     }));
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    let lastError = null;
 
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemPrompt }]
+    for (const model of modelsToTry) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
           },
-          contents: contents,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 300
-          }
-        })
-      });
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: systemPrompt }]
+            },
+            contents: contents,
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 300
+            }
+          })
+        });
 
-      if (!response.ok) {
+        if (response.ok) {
+          const data = await response.json();
+          const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+          if (botReply) return botReply;
+        }
+
         const errorData = await response.json().catch(() => ({}));
         const errorMsg = errorData.error?.message || `Error HTTP ${response.status}: ${response.statusText}`;
+
+        // Si el modelo específico aún no está disponible públicamente en ese endpoint (404), prueba la siguiente versión
+        if (response.status === 404 || errorMsg.includes('not found') || errorMsg.includes('is not supported')) {
+          continue;
+        }
 
         if (response.status === 400 || response.status === 403) {
           throw new Error('API Key de Google Gemini inválida o sin permisos. Revísala en Google AI Studio (aistudio.google.com).');
@@ -75,20 +90,15 @@ class OpenAIService {
         } else {
           throw new Error(`Gemini: ${errorMsg}`);
         }
+      } catch (err) {
+        lastError = err;
+        if (!err.message?.includes('not found') && !err.message?.includes('404')) {
+          throw err;
+        }
       }
-
-      const data = await response.json();
-      const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-
-      if (!botReply) {
-        throw new Error('La respuesta de Gemini llegó vacía.');
-      }
-
-      return botReply;
-    } catch (error) {
-      console.error('Error en llamada a Google Gemini:', error);
-      throw error;
     }
+
+    throw lastError || new Error('No se pudo conectar con el modelo Gemini.');
   }
 
   /**
