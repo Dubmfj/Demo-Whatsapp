@@ -69,13 +69,13 @@
           </button>
 
           <!-- Botón de Configuración de Demo -->
-          <button id="openConfigBtn" class="flex items-center gap-1.5 bg-[#128C7E] hover:bg-[#0e7468] text-white px-2.5 sm:px-3 py-1.5 rounded-md font-medium text-[12px] sm:text-[13px] shadow transition transform active:scale-95" title="Configurar Demo del Negocio">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button id="openConfigBtn" type="button" class="cursor-pointer flex items-center gap-1.5 bg-[#128C7E] active:bg-[#0b5c53] hover:bg-[#0e7468] text-white px-2.5 sm:px-3 py-1.5 rounded-md font-medium text-[12px] sm:text-[13px] shadow transition transform active:scale-95 select-none" title="Configurar Demo del Negocio">
+            <svg class="w-4 h-4 flex-shrink-0 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
-            <span class="hidden sm:inline">Configurar Demo</span>
-            <span class="sm:hidden font-medium">Ajustes</span>
+            <span class="hidden sm:inline pointer-events-none">Configurar Demo</span>
+            <span class="sm:hidden font-medium pointer-events-none">Ajustes</span>
           </button>
         </div>
       </header>
@@ -141,12 +141,13 @@
         </button>
       </footer>
     </div>
+  </div>
 
-    <!-- BACKDROP PARA EL DRAWER DE CONFIGURACIÓN -->
-    <div id="configBackdrop" class="hidden fixed inset-0 bg-black/40 z-40 transition-opacity"></div>
+  <!-- BACKDROP PARA EL DRAWER DE CONFIGURACIÓN -->
+  <div id="configBackdrop"></div>
 
-    <!-- PANEL LATERAL DE CONFIGURACIÓN (DRAWER DESLIZABLE) -->
-    <aside id="configDrawer" class="fixed top-0 right-0 h-full w-full max-w-[460px] bg-[#f0f2f5] shadow-2xl z-50 transform translate-x-full drawer-transition flex flex-col border-l border-gray-300">
+  <!-- PANEL LATERAL DE CONFIGURACIÓN (DRAWER DESLIZABLE) -->
+  <aside id="configDrawer">
 
       <!-- Header del Drawer -->
       <div class="h-[62px] bg-[#075E54] text-white px-5 flex items-center justify-between shadow-sm">
@@ -305,8 +306,6 @@
       </div>
 
     </aside>
-
-  </div>
 
   <!-- Scripts de la Aplicación (Compatibles con doble clic directo file:/// y con servidor http://) -->
   <script src="js/config.js"></script>

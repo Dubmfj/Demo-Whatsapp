@@ -124,15 +124,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Manejo del Drawer de Configuración ---
-  function openConfig() {
+  function openConfig(e) {
+    if (e && e.type === 'touchstart') e.preventDefault();
     syncUIWithConfig();
-    configDrawer.classList.remove('translate-x-full');
-    configBackdrop.classList.remove('hidden');
+    configDrawer.classList.add('active');
+    configBackdrop.classList.add('active');
   }
 
-  function closeConfig() {
-    configDrawer.classList.add('translate-x-full');
-    configBackdrop.classList.add('hidden');
+  function closeConfig(e) {
+    if (e && e.type === 'touchstart') e.preventDefault();
+    configDrawer.classList.remove('active');
+    configBackdrop.classList.remove('active');
   }
 
   openConfigBtn.addEventListener('click', openConfig);
