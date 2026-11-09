@@ -76,8 +76,8 @@ class OpenAIService {
             },
             contents: contents,
             generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 1200 // Espacio amplio para respuestas completas sin cortes
+              temperature: 0.7
+              // Sin límite de tokens (maxOutputTokens removido) para que el modelo nunca se corte
             }
           })
         });
@@ -153,8 +153,7 @@ class OpenAIService {
         body: JSON.stringify({
           model: model,
           messages: messages,
-          temperature: 0.7,
-          max_tokens: 1000 // Espacio suficiente para respuestas completas
+          temperature: 0.7
         })
       });
 
