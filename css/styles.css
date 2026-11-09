@@ -1,0 +1,164 @@
+/* WhatsApp Web Simulation Styles */
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --wa-teal: #075E54;
+  --wa-teal-dark: #054c44;
+  --wa-teal-light: #128C7E;
+  --wa-green: #25D366;
+  --wa-check-blue: #53bdeb;
+  --wa-chat-bg: #efeae2;
+  --wa-bubble-out: #d9fdd3;
+  --wa-bubble-in: #ffffff;
+  --wa-text-primary: #111b21;
+  --wa-text-secondary: #667781;
+  --wa-time-stamp: #667781;
+}
+
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+  background-color: #d1d7db;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+  width: 100vw;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* WhatsApp Pattern Background */
+.wa-chat-background {
+  background-color: var(--wa-chat-bg);
+  background-image: radial-gradient(#d4cdb4 0.75px, transparent 0.75px), radial-gradient(#d4cdb4 0.75px, #efeae2 0.75px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  position: relative;
+}
+
+/* Doodle Pattern Overlay */
+.wa-chat-background::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.45;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='240' height='240' viewBox='0 0 240 240' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.3' d='M25 35c2-6 8-10 14-8 6 2 8 8 6 14-2 6-8 10-14 8-6-2-8-8-6-14zM180 40c4 0 7 3 7 7s-3 7-7 7-7-3-7-7 3-7 7-7zM70 120c0-6 5-10 11-10s10 4 10 10-4 10-10 10-11-4-11-10zM195 185c-4 5-11 6-16 2s-6-11-2-16 11-6 16-2 6 11 2 16zM45 195c-3-3-3-8 0-11s8-3 11 0 3 8 0 11-8 3-11 0z' stroke='%238596a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath opacity='0.25' d='M110 50h15v15h-15zM140 130l10-15 10 15h-20zM30 110l12 7-12 7v-14zM140 30c5 5 15 5 20 0M100 180c5 8 18 8 23 0' stroke='%238596a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(11, 20, 26, 0.2);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(11, 20, 26, 0.35);
+}
+
+/* Chat bubble tails */
+.bubble-in-tail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-top: 0px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 10px solid var(--wa-bubble-in);
+}
+
+.bubble-out-tail::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -8px;
+  width: 0;
+  height: 0;
+  border-top: 0px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 10px solid var(--wa-bubble-out);
+}
+
+/* Message timestamps and checks */
+.msg-meta {
+  float: right;
+  margin-left: 12px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--wa-time-stamp);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  user-select: none;
+}
+
+/* Typing Dots Animation */
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #667781;
+  border-radius: 50%;
+  display: inline-block;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Smooth message slide-in */
+.message-entry {
+  animation: messageFadeIn 0.18s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal and Sidebar animations */
+.drawer-transition {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Format text in bubbles (WhatsApp bold, italic) */
+.wa-content p {
+  margin: 0 0 4px 0;
+}
+.wa-content p:last-child {
+  margin-bottom: 0;
+}
+.wa-content strong {
+  font-weight: 600;
+}
