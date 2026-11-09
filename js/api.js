@@ -1,6 +1,6 @@
 /**
  * Integración con las APIs de Google Gemini y OpenAI
- * Soporta auto-detección de proveedor y fallback inteligente para demostraciones.
+ * Soporta auto-detección de proveedor, modelos Flash y control robusto de tokens.
  */
 
 class OpenAIService {
@@ -40,8 +40,21 @@ class OpenAIService {
     const fallbackModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
     const modelsToTry = [primaryModel, ...fallbackModels];
 
-    // Mapear historial al formato de Gemini
-    const contents = history.map(msg => ({
+    // Preparar historial compatible con Gemini:
+    // 1. Debe comenzar siempre con un mensaje del 'user'.
+    // 2. Si el primer mensaje fue el saludo inicial del bot, lo excluimos del envío a la API
+    //    para no romper la alternancia requerida (user -> model -> user -> model).
+    let filteredHistory = [...history];
+    while (filteredHistory.length > 0 && filteredHistory[0].role !== 'user') {
+      filteredHistory.shift();
+    }
+
+    // Si por alguna razón queda vacío, agregar un saludo inicial del usuario
+    if (filteredHistory.length === 0) {
+      filteredHistory = [{ role: 'user', content: 'Hola' }];
+    }
+
+    const contents = filteredHistory.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'model',
       parts: [{ text: msg.content }]
     }));
@@ -64,21 +77,38 @@ class OpenAIService {
             contents: contents,
             generationConfig: {
               temperature: 0.7,
-              maxOutputTokens: 300
+              maxOutputTokens: 1200 // Espacio amplio para respuestas completas sin cortes
             }
           })
         });
 
         if (response.ok) {
           const data = await response.json();
-          const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-          if (botReply) return botReply;
+          const candidate = data.candidates?.[0];
+
+          if (candidate?.content?.parts) {
+            // Filtrar partes de razonamiento interno (thought) y extraer el texto visible final
+            const textParts = candidate.content.parts
+              .filter(p => !p.thought && p.text)
+              .map(p => p.text);
+
+            let botReply = textParts.join('').trim();
+
+            // Si vino en una sola parte estándar
+            if (!botReply && candidate.content.parts[0]?.text) {
+              botReply = candidate.content.parts[candidate.content.parts.length - 1].text.trim();
+            }
+
+            if (botReply) {
+              return botReply;
+            }
+          }
         }
 
         const errorData = await response.json().catch(() => ({}));
         const errorMsg = errorData.error?.message || `Error HTTP ${response.status}: ${response.statusText}`;
 
-        // Si el modelo específico aún no está disponible públicamente en ese endpoint (404), prueba la siguiente versión
+        // Si el modelo específico aún no está registrado públicamente en ese endpoint (404), prueba la siguiente versión Flash
         if (response.status === 404 || errorMsg.includes('not found') || errorMsg.includes('is not supported')) {
           continue;
         }
@@ -102,7 +132,7 @@ class OpenAIService {
   }
 
   /**
-   * Llamada a OpenAI Chat Completions
+   * Llamada a OpenAI Chat Completions (fallback para claves sk-...)
    */
   async sendToOpenAI(history, apiKey, config) {
     const systemPrompt = this.configManager.getSystemPrompt();
@@ -124,7 +154,7 @@ class OpenAIService {
           model: model,
           messages: messages,
           temperature: 0.7,
-          max_tokens: 300
+          max_tokens: 1000 // Espacio suficiente para respuestas completas
         })
       });
 
@@ -159,7 +189,6 @@ class OpenAIService {
    * Fallback de respuesta simulada si no se ha configurado API key aún.
    */
   async generateMockResponse(history, config) {
-    // Simular latencia de red y razonamiento humano (1.1 segundos)
     await new Promise(res => setTimeout(res, 1100));
 
     const lastUserMessage = history[history.length - 1]?.content?.toLowerCase() || '';
@@ -176,7 +205,7 @@ class OpenAIService {
       return `¡Con todo gusto! Atendemos de forma continua y personalizada en *${config.businessName}*. 📍🕒\n\n¿Te gustaría programar una cita o visita guiada?`;
     }
 
-    return `¡Excelente consulta! En *${config.businessName}* nos encargamos de brindarte la mejor solución a medida. ✨\n\n*(Nota Demo: Pega tu API Key de Gemini u OpenAI en "Ajustes" para respuestas con IA en vivo).* ¿Deseas coordinar con un asesor?`;
+    return `¡Excelente consulta! En *${config.businessName}* nos encargamos de brindarte la mejor atención personalizada. ✨\n\n*(Nota Demo: Pega tu API Key de Gemini en "Ajustes" para respuestas 100% en vivo).* ¿Deseas coordinar con un asesor humano?`;
   }
 }
 
